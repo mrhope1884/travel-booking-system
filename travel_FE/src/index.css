@@ -1,0 +1,78 @@
+:root {
+  --sidebar-bg: #222d32;
+  --sidebar-header: #1e282c;
+  --sidebar-hover: #1e282c;
+  --sidebar-active: #1a2226;
+  --sidebar-color: #b8c7ce;
+  --sidebar-active-color: #ffffff;
+  --sidebar-accent: #00c0ef;
+  --sidebar-border: #1a2226;
+  --primary: #00a65a;
+  --primary-hover: #008d4c;
+  --teal: #00c0ef;
+  --warning: #f39c12;
+  --danger: #dd4b39;
+  --info: #3c8dbc;
+  --bg-main: #f4f6f9;
+  --card-bg: #ffffff;
+  --card-border: #d2d6de;
+  --text-dark: #333333;
+  --text-muted: #777777;
+  --border-color: #f0f0f0;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}

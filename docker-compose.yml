@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. Dịch vụ Backend (Node.js API)
+  backend:
+    build:
+      context: ./travel_BE
+      dockerfile: Dockerfile
+    container_name: travel_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    dns:
+    - 8.8.8.8
+    - 1.1.1.1
+    networks:
+      - travel-network
+
+  # 2. Dịch vụ Frontend (React Vite)
+  frontend:
+    build:
+      context: ./travel_FE
+      dockerfile: Dockerfile
+    container_name: travel_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - travel-network
+
+# Mạng ảo kết nối nội bộ giữa Backend và Frontend
+networks:
+  travel-network:
+    driver: bridge
