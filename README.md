@@ -33,7 +33,7 @@ Hệ thống website đặt tour du lịch và cổng quản trị (Admin Dashbo
 
 ## 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy
 
-### Cách 1: Khởi chạy nhanh bằng Docker Compose (Khuyên dùng)
+### Khởi chạy nhanh bằng Docker Compose (Khuyên dùng)
 Yêu cầu máy đã cài Docker Desktop:
 ```bash
 # Khởi động toàn bộ hệ thống (Frontend & Backend)
