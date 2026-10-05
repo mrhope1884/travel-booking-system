@@ -18,4 +18,7 @@ router.get('/detail/:id', bookingController.getBookingById);
 // 4. Khách hủy đơn đặt tour
 router.patch('/cancel/:id', bookingController.cancelBooking);
 
+// 5. Khách đổi phương thức thanh toán (Action: /payment-method/:id)
+router.patch('/payment-method/:id', bookingController.updatePaymentMethod);
+
 module.exports = router;

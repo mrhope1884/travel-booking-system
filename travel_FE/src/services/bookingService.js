@@ -20,6 +20,12 @@ export const bookingService = {
     return response.data;
   },
 
+  // 3b. Khách cập nhật phương thức thanh toán cho đơn (Action: /payment-method/:id)
+  updatePaymentMethod: async (id, paymentMethod) => {
+    const response = await api.patch(`/bookings/payment-method/${id}`, { paymentMethod });
+    return response.data;
+  },
+
   // 4. Hủy booking và tự động hoàn lại chỗ trống cho tour (Action: /cancel/:id)
   cancelBooking: async (id) => {
     const isAdmin = window.location.pathname.startsWith('/admin');

@@ -4,7 +4,7 @@ const Tour = require('../../models/tour.model');
 // 1. Khách đặt tour
 module.exports.createBooking = async (req, res, next) => {
   try {
-    const { tourId, numBookedSeats } = req.body; 
+    const { tourId, numBookedSeats, paymentMethod, phone } = req.body; 
 
     // Kiểm tra tour tồn tại và chưa bị xóa mềm
     const tour = await Tour.findOne({ _id: tourId, isDeleted: false });
@@ -28,6 +28,8 @@ module.exports.createBooking = async (req, res, next) => {
 
     const finalUserId = req.user.id;
 
+    const phoneNumber = phone;
+
     // Cập nhật số chỗ trống còn lại của tour
     tour.maxGroupSize = availableSeats;
     await tour.save();
@@ -36,9 +38,11 @@ module.exports.createBooking = async (req, res, next) => {
 
     const newBooking = await Booking.create({ 
       tour: tourId, 
-      user: finalUserId, 
+      user: finalUserId,
+      phone: phoneNumber,
       price, 
-      numBookedSeats: seatsToBook 
+      numBookedSeats: seatsToBook,
+      paymentMethod: paymentMethod || 'vietqr'
     });
 
     res.status(201).json({
@@ -117,6 +121,44 @@ module.exports.cancelBooking = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       message: `🎉 Hủy đơn thành công và đã hoàn lại ${seatsToRefund} chỗ ngồi!`,
+      data: booking
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 5. Khách hàng cập nhật phương thức thanh toán cho đơn của mình
+module.exports.updatePaymentMethod = async (req, res, next) => {
+  try {
+    const { paymentMethod } = req.body;
+    const validMethods = ['vietqr', 'momo', 'paypal', 'office'];
+
+    if (!paymentMethod || !validMethods.includes(paymentMethod)) {
+      return res.status(400).json({ message: "❌ Phương thức thanh toán không hợp lệ!" });
+    }
+
+    // Chỉ tìm đơn thuộc về chính khách hàng đang đăng nhập
+    const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
+    if (!booking) {
+      return res.status(404).json({ message: "❌ Đơn đặt tour không tồn tại hoặc bạn không có quyền cập nhật!" });
+    }
+
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({ message: "⚠️ Đơn đã bị hủy, không thể đổi phương thức thanh toán!" });
+    }
+
+    if (booking.paymentStatus === 'paid') {
+      return res.status(400).json({ message: "⚠️ Đơn đã thanh toán thành công, không thể đổi phương thức!" });
+    }
+
+    // Cập nhật phương thức mới vào database
+    booking.paymentMethod = paymentMethod;
+    await booking.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "🎉 Cập nhật phương thức thanh toán thành công!",
       data: booking
     });
   } catch (error) {

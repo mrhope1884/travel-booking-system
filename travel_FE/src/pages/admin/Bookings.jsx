@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Eye, Ban, X, Trash2 } from 'lucide-react';
+import { Search, Eye, Ban, X, Trash2, Phone } from 'lucide-react';
 import bookingService from '../../services/bookingService';
 import StatusBadge from '../../components/admin/StatusBadge';
 import ConfirmModal from '../../components/admin/ConfirmModal';
@@ -85,6 +85,8 @@ const Bookings = () => {
         !term ||
         (b.user?.name && b.user.name.toLowerCase().includes(term)) ||
         (b.user?.email && b.user.email.toLowerCase().includes(term)) ||
+        (b.phone && b.phone.toLowerCase().includes(term)) ||
+        (b.user?.phone && b.user.phone.toLowerCase().includes(term)) ||
         (b.tour?.title && b.tour.title.toLowerCase().includes(term)) ||
         (b._id && b._id.toLowerCase().includes(term));
       return matchStatus && matchSearch;
@@ -311,6 +313,12 @@ const Bookings = () => {
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ fontWeight: 600, color: '#333' }}>{b.user?.name || 'Khách hàng'}</div>
                         <div style={{ fontSize: '11px', color: '#888' }}>{b.user?.email || 'N/A'}</div>
+                        {(b.phone || b.user?.phone) && (
+                          <div style={{ fontSize: '11px', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '3px', fontWeight: 600 }}>
+                            <Phone size={11} />
+                            <span>{b.phone || b.user?.phone}</span>
+                          </div>
+                        )}
                       </td>
                       <td style={{ padding: '12px 16px', fontWeight: 500, color: '#444' }}>
                         {b.tour?.title || 'Tour du lịch tham quan'}
@@ -515,6 +523,24 @@ const Bookings = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', paddingBottom: '10px' }}>
                 <span style={{ color: '#888' }}>Email:</span>
                 <span>{selectedBooking.user?.email || 'N/A'}</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', paddingBottom: '10px' }}>
+                <span style={{ color: '#888' }}>Số điện thoại:</span>
+                <span style={{ fontWeight: 600, color: (selectedBooking.phone || selectedBooking.user?.phone) ? '#0284c7' : '#888' }}>
+                  {selectedBooking.phone || selectedBooking.user?.phone || 'Chưa cung cấp'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', paddingBottom: '10px' }}>
+                <span style={{ color: '#888' }}>Phương thức TT:</span>
+                <span style={{ fontWeight: 600, color: '#333' }}>
+                  {selectedBooking.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR' :
+                   selectedBooking.paymentMethod === 'office' ? 'Tại văn phòng' :
+                   selectedBooking.paymentMethod === 'momo' ? 'Ví MoMo' :
+                   selectedBooking.paymentMethod === 'paypal' ? 'PayPal' :
+                   (selectedBooking.paymentMethod || 'Chưa chọn')}
+                </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', paddingBottom: '10px' }}>

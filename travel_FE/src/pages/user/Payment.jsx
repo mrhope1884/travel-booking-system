@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   CheckCircle2, 
   CreditCard, 
@@ -22,12 +22,44 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 const Payment = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const methodFromQuery = searchParams.get('method');
 
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState('vietqr');
+  const [selectedMethod, setSelectedMethod] = useState(methodFromQuery || 'vietqr');
   const [copied, setCopied] = useState(false);
+  const [savingMethod, setSavingMethod] = useState(false);
+  const [methodMessage, setMethodMessage] = useState(null);
+
+  const getMethodLabel = (m) => {
+    switch (m) {
+      case 'office': return 'Thanh toán tại văn phòng';
+      case 'vietqr': return 'Chuyển khoản (VietQR)';
+      case 'momo': return 'Ví điện tử MoMo';
+      case 'paypal': return 'PayPal & Thẻ quốc tế';
+      default: return m || 'Tại văn phòng';
+    }
+  };
+
+  const handleSelectMethod = async (newMethod) => {
+    if (newMethod === selectedMethod) return;
+    setSelectedMethod(newMethod);
+    navigate(`/payment/${bookingId}?method=${newMethod}`, { replace: true });
+
+    try {
+      setSavingMethod(true);
+      await bookingService.updatePaymentMethod(bookingId, newMethod);
+      setBooking((prev) => prev ? { ...prev, paymentMethod: newMethod } : prev);
+      setMethodMessage(`✓ Đã đổi sang: ${getMethodLabel(newMethod)}`);
+      setTimeout(() => setMethodMessage(null), 3000);
+    } catch (err) {
+      console.warn('Lưu phương thức thanh toán lên server:', err);
+    } finally {
+      setSavingMethod(false);
+    }
+  };
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -35,7 +67,11 @@ const Payment = () => {
         setLoading(true);
         setError(null);
         const res = await bookingService.getBookingById(bookingId);
-        setBooking(res.data || res);
+        const bData = res.data || res;
+        setBooking(bData);
+        if (!methodFromQuery && bData.paymentMethod) {
+          setSelectedMethod(bData.paymentMethod);
+        }
       } catch (err) {
         console.error('Lỗi tải booking:', err);
         setError(err.response?.data?.message || err.message || 'Không thể tải thông tin đơn đặt tour.');
@@ -154,22 +190,22 @@ const Payment = () => {
         </div>
       </div>
 
-      {/* Thông báo trạng thái API Backend */}
+      {/* Hướng dẫn xác nhận thanh toán */}
       <div style={{
-        backgroundColor: '#fffbeb',
-        border: '1px solid #fef3c7',
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e2e8f0',
         borderRadius: '12px',
         padding: '12px 18px',
         marginBottom: '24px',
         fontSize: '13px',
-        color: '#92400e',
+        color: '#475569',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
       }}>
-        <AlertCircle size={18} style={{ flexShrink: 0 }} />
+        <ShieldCheck size={18} color="#0284c7" style={{ flexShrink: 0 }} />
         <span>
-          <strong>TODO:</strong> Backend chưa cung cấp Payment API (cổng thanh toán trực tuyến). Thanh toán hiện tại là phương thức chuyển khoản qua VietQR / Ngân hàng / Trực tiếp tại văn phòng. Trạng thái thanh toán được cập nhật qua API thực tế <code>PATCH /api/bookings/payment/:id</code>.
+          <strong>Lưu ý:</strong> Sau khi hoàn tất thanh toán hoặc chuyển khoản, hệ thống và nhân viên tư vấn sẽ kiểm tra và xác nhận đơn của bạn trong vòng 5 - 15 phút.
         </span>
       </div>
 
@@ -197,11 +233,31 @@ const Payment = () => {
               Vui lòng chọn hình thức thanh toán thuận tiện nhất cho bạn
             </p>
 
+            {/* Thông báo khi đổi phương thức thành công */}
+            {methodMessage && (
+              <div style={{
+                padding: '10px 14px',
+                backgroundColor: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '10px',
+                color: '#166534',
+                fontSize: '13px',
+                fontWeight: 600,
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <CheckCircle2 size={16} color="#16a34a" />
+                <span>{methodMessage}</span>
+              </div>
+            )}
+
             {/* Methods options */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Option 1: VietQR */}
               <div
-                onClick={() => setSelectedMethod('vietqr')}
+                onClick={() => handleSelectMethod('vietqr')}
                 style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -234,7 +290,7 @@ const Payment = () => {
 
               {/* Option 2: MoMo */}
               <div
-                onClick={() => setSelectedMethod('momo')}
+                onClick={() => handleSelectMethod('momo')}
                 style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -267,7 +323,7 @@ const Payment = () => {
 
               {/* Option 3: PayPal / Thẻ quốc tế */}
               <div
-                onClick={() => setSelectedMethod('paypal')}
+                onClick={() => handleSelectMethod('paypal')}
                 style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -300,7 +356,7 @@ const Payment = () => {
 
               {/* Option 4: Văn phòng */}
               <div
-                onClick={() => setSelectedMethod('office')}
+                onClick={() => handleSelectMethod('office')}
                 style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -419,7 +475,7 @@ const Payment = () => {
                     Thanh toán Quốc tế / PayPal:
                   </h4>
                   <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
-                    Hỗ trợ thanh toán qua tài khoản PayPal: <strong>paypal@travelviet.vn</strong> hoặc kết nối cổng thanh toán quốc tế thẻ Visa/Mastercard.
+                    Hỗ trợ thanh toán qua tài khoản PayPal: <strong>vuvietquan1884@gmail.com</strong> hoặc kết nối cổng thanh toán quốc tế thẻ Visa/Mastercard.
                   </p>
                 </div>
               )}
@@ -430,8 +486,7 @@ const Payment = () => {
                     Địa chỉ Văn phòng Giao dịch:
                   </h4>
                   <p style={{ fontSize: '13px', color: '#334155', lineHeight: 1.5, margin: 0 }}>
-                    <strong>Hà Nội:</strong> 184 Hoàng Quốc Việt, Cầu Giấy, Hà Nội | Hotline: 1900 6868<br />
-                    <strong>TP. Hồ Chí Minh:</strong> 45 Lê Duẩn, Phường Bến Nghé, Quận 1 | Hotline: 1900 6869
+                    <strong>Hà Nội:</strong> 23 Hoàng Xá, Quốc Oai, Hà Nội | Hotline: 0868236611<br />
                   </p>
                 </div>
               )}
@@ -505,6 +560,20 @@ const Payment = () => {
                   color: booking.status === 'cancelled' ? '#64748b' : booking.paymentStatus === 'paid' ? '#166534' : '#92400e'
                 }}>
                   {booking.status === 'cancelled' ? 'Đã hủy đơn' : booking.paymentStatus === 'paid' ? '✓ Đã thanh toán' : '⏳ Chờ thanh toán'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#64748b' }}>Hình thức thanh toán:</span>
+                <span style={{
+                  fontWeight: 700,
+                  color: '#0284c7',
+                  fontSize: '12px',
+                  backgroundColor: '#f0f9ff',
+                  padding: '3px 8px',
+                  borderRadius: '6px'
+                }}>
+                  {getMethodLabel(booking.paymentMethod || selectedMethod)}
                 </span>
               </div>
             </div>

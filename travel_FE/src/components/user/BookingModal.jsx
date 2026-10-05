@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, 
@@ -16,11 +16,18 @@ import {
 import bookingService from '../../services/bookingService';
 
 const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuccess }) => {
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [note, setNote] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('vietqr');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.phone && !phone) {
+      setPhone(user.phone);
+    }
+  }, [user]);
 
   if (!isOpen || !tour) return null;
 
@@ -29,10 +36,19 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
       setLoading(true);
       setError(null);
 
+      const cleanPhone = phone.trim();
+      if (!cleanPhone) {
+        setError('Vui lòng nhập số điện thoại để công ty liên hệ khi khởi hành!');
+        setLoading(false);
+        return;
+      }
+
       // Gọi API Backend Node.js POST /api/bookings/create
       const response = await bookingService.createBooking({
         tourId: tour._id,
-        numBookedSeats: Number(quantity)
+        numBookedSeats: Number(quantity),
+        paymentMethod,
+        phone: cleanPhone
       });
 
       const newBooking = response.data || response;
@@ -40,8 +56,8 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
       if (onSuccess) {
         onSuccess(newBooking);
       } else {
-        // Chuyển hướng sang trang thanh toán
-        navigate(`/payment/${newBooking._id || newBooking.id}`);
+        // Chuyển hướng sang trang thanh toán kèm phương thức đã chọn
+        navigate(`/payment/${newBooking._id || newBooking.id}?method=${paymentMethod}`);
       }
     } catch (err) {
       console.error('Lỗi tạo booking:', err);
@@ -200,7 +216,7 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
 
             <div style={{ marginTop: '12px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                Số điện thoại liên lạc khi đi tour (Tùy chọn)
+                Số điện thoại liên lạc khi đi tour <span style={{ color: '#dc2626' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Phone size={15} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
@@ -223,6 +239,49 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
             </div>
           </div>
 
+          {/* Lựa chọn phương thức thanh toán */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
+              Phương thức thanh toán mong muốn:
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              {[
+                { id: 'vietqr', label: 'Chuyển khoản (VietQR)' },
+                { id: 'office', label: 'Tại văn phòng' },
+                { id: 'momo', label: 'Ví MoMo' },
+                { id: 'paypal', label: 'PayPal / Thẻ QT' },
+              ].map((m) => (
+                <div
+                  key={m.id}
+                  onClick={() => setPaymentMethod(m.id)}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: paymentMethod === m.id ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                    backgroundColor: paymentMethod === m.id ? '#f0f9ff' : '#ffffff',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: paymentMethod === m.id ? 700 : 500,
+                    color: paymentMethod === m.id ? '#0284c7' : '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    checked={paymentMethod === m.id}
+                    onChange={() => setPaymentMethod(m.id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span>{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -234,7 +293,7 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
             borderRadius: '8px'
           }}>
             <ShieldAlert size={16} color="#0284c7" style={{ flexShrink: 0 }} />
-            <span>Sau khi tạo booking thành công, bạn sẽ được chuyển sang bước lựa chọn phương thức thanh toán.</span>
+            <span>Sau khi tạo booking thành công, bạn sẽ được chuyển sang trang thanh toán theo phương thức đã chọn.</span>
           </div>
         </div>
 

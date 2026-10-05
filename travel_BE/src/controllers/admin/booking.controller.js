@@ -5,7 +5,7 @@ module.exports.getAllBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find()
       .populate("tour")
-      .populate("user", "name email role")
+      .populate("user", "name email phone role")
       .sort({ createdAt: -1 });
 
     res.status(200).json({

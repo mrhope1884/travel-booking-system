@@ -243,14 +243,12 @@ const BookingDetail = () => {
                 <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{booker.name || 'Khách hàng'}</div>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Địa chỉ Email:</span>
-                <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{booker.email || '—'}</div>
+                <span style={{ color: '#64748b' }}>Số điện thoại liên hệ:</span>
+                <div style={{ fontWeight: 700, color: '#0284c7', marginTop: '2px' }}>{booking.phone || booker.phone || '—'}</div>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Loại tài khoản:</span>
-                <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
-                  {booker.role === 'admin' ? 'Quản trị viên' : 'Khách hàng thành viên'}
-                </div>
+                <span style={{ color: '#64748b' }}>Địa chỉ Email:</span>
+                <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{booker.email || '—'}</div>
               </div>
             </div>
           </div>
@@ -272,6 +270,12 @@ const BookingDetail = () => {
                   <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 20px', color: '#64748b' }}>Số lượng vé đặt:</td>
                     <td style={{ padding: '14px 20px', textAlign: 'right', fontWeight: 600 }}>x {booking.numBookedSeats || 1} khách</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '14px 20px', color: '#64748b' }}>Hình thức thanh toán:</td>
+                    <td style={{ padding: '14px 20px', textAlign: 'right', fontWeight: 700, color: '#0284c7' }}>
+                      {booking.paymentMethod === 'office' ? 'Tại văn phòng' : booking.paymentMethod === 'momo' ? 'Ví MoMo' : booking.paymentMethod === 'paypal' ? 'PayPal / Thẻ QT' : 'Chuyển khoản (VietQR)'}
+                    </td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 20px', color: '#64748b' }}>Trạng thái thanh toán:</td>

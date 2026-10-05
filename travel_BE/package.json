@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.5",
     "nodemailer": "^10.0.9",
+    "socket.io": "^4.8.4",
     "vnpay": "^2.5.0"
   },
   "devDependencies": {

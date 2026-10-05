@@ -11,6 +11,10 @@ const bookingSchema = new mongoose.Schema({
         ref: "User",
         required: [true, "Booking phải thuộc về một người dùng nhất định!"]
     },
+    phone: {
+        type: String,
+        required: [true, "Booking phải có số điện thoại liên hệ!"]
+    }, 
     price: {
         type: Number,
         required: [true, "Booking phải có giá tiền!"]
