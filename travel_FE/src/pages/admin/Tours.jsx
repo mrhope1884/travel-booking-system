@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, RotateCcw, AlertTriangle, Loader2, X, Compass } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Edit, Trash2, Loader2, X } from 'lucide-react';
 import tourService from '../../services/tourService';
 import Pagination from '../../components/admin/Pagination';
 import ConfirmModal from '../../components/admin/ConfirmModal';
@@ -13,10 +13,9 @@ const Tours = () => {
   const [error, setError] = useState(null);
 
   // Pagination & Search
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Modals & Action states
   const [showAddModal, setShowAddModal] = useState(false);
@@ -41,14 +40,10 @@ const Tours = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await tourService.getAllTours({
-        page,
-        limit: 8,
-        query: searchQuery || undefined,
-      });
-      setTours(res.data || []);
-      setTotalPages(res.totalPages || 1);
-      setTotal(res.total || 0);
+      // Gọi đúng API Quản trị viên: GET /api/admin/tours/all (lấy 100% tour, không ẩn tour hết chỗ)
+      const res = await tourService.getAdminTours();
+      const list = Array.isArray(res) ? res : (res?.data || []);
+      setTours(Array.isArray(list) ? list : []);
     } catch (err) {
       console.error('Lỗi khi tải danh sách tour:', err);
       setError(err.response?.data?.message || err.message || 'Không thể tải danh sách tour.');
@@ -59,12 +54,36 @@ const Tours = () => {
 
   useEffect(() => {
     fetchTours();
-  }, [page]);
+  }, []);
+
+  // Tìm kiếm tức thì theo tiêu đề, mô tả, khu vực, mã ID
+  const filteredTours = useMemo(() => {
+    if (!Array.isArray(tours)) return [];
+    if (!searchQuery.trim()) return tours;
+    const term = searchQuery.toLowerCase();
+    return tours.filter(
+      (t) =>
+        (t.title && t.title.toLowerCase().includes(term)) ||
+        (t.description && t.description.toLowerCase().includes(term)) ||
+        (t.region && t.region.toLowerCase().includes(term)) ||
+        (t._id && t._id.toLowerCase().includes(term))
+    );
+  }, [tours, searchQuery]);
+
+  // Phân trang
+  const totalPages = Math.ceil(filteredTours.length / itemsPerPage) || 1;
+  const currentTours = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return filteredTours.slice(start, start + itemsPerPage);
+  }, [filteredTours, page, itemsPerPage]);
+
+  // Tự động chuyển về trang 1 khi người dùng gõ tìm kiếm
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setPage(1);
-    fetchTours();
   };
 
   const handleOpenAdd = () => {
@@ -187,7 +206,7 @@ const Tours = () => {
             Quản lý Tours du lịch
           </h2>
           <span style={{ fontSize: '12px', color: '#888' }}>
-            Tổng số: <strong>{total}</strong> tours đang hoạt động
+            Tổng số: <strong>{filteredTours.length}</strong> tours đang hoạt động
           </span>
         </div>
 
@@ -275,7 +294,7 @@ const Tours = () => {
               Thử lại
             </button>
           </div>
-        ) : tours.length === 0 ? (
+        ) : filteredTours.length === 0 ? (
           <EmptyState
             message="Chưa có tour nào trong hệ thống hoặc không khớp tìm kiếm."
             actionText="Tạo tour mới ngay"
@@ -290,23 +309,25 @@ const Tours = () => {
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600 }}>Tên tiêu đề tour</th>
                   <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 600, width: '130px' }}>Giá vé (VNĐ)</th>
                   <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, width: '110px' }}>Khu vực</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, width: '110px' }}>Số chỗ tối đa</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, width: '120px' }}>Số chỗ còn lại</th>
                   <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, width: '150px' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {tours.map((tour, idx) => {
+                {currentTours.map((tour, idx) => {
                   const idDisplay = tour._id ? tour._id.slice(-5).toUpperCase() : `T${idx + 1}`;
                   const regionVal = tour.region || 'Miền Bắc';
+                  const isSoldOut = (tour.maxGroupSize ?? 0) <= 0;
                   return (
                     <tr
                       key={tour._id || idx}
                       style={{
                         borderBottom: '1px solid #f2f4f6',
                         transition: 'background-color 0.15s',
+                        backgroundColor: isSoldOut ? '#fffdfa' : 'transparent',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f9fafb')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = isSoldOut ? '#fff7ed' : '#f9fafb')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isSoldOut ? '#fffdfa' : 'transparent')}
                     >
                       <td style={{ padding: '12px 16px', color: '#888', fontWeight: 600 }}>{idDisplay}</td>
                       <td style={{ padding: '12px 16px', fontWeight: 600, color: '#333' }}>
@@ -330,8 +351,26 @@ const Tours = () => {
                           {regionVal}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'center', color: '#555' }}>
-                        {tour.maxGroupSize || 20} chỗ
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        {isSoldOut ? (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '3px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            backgroundColor: '#fee2e2',
+                            color: '#dc2626',
+                            border: '1px solid #fecaca',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            Hết chỗ (0)
+                          </span>
+                        ) : (
+                          <span style={{ color: '#555', fontWeight: 600 }}>
+                            {tour.maxGroupSize} chỗ
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
@@ -389,8 +428,8 @@ const Tours = () => {
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
-          totalItems={total}
-          itemsPerPage={8}
+          totalItems={filteredTours.length}
+          itemsPerPage={itemsPerPage}
         />
       </div>
 

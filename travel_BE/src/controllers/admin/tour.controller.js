@@ -49,7 +49,7 @@ module.exports.createTour = async (req, res, next) => {
 module.exports.updateTour = async (req, res, next) => {
   try {
     const tourId = req.params.id;
-    const updatedTour = await Tour.findByIdAndUpdate(tourId, req.body, { new: true, runValidators: true });
+    const updatedTour = await Tour.findByIdAndUpdate(tourId, req.body, { returnDocument: 'after', runValidators: true });
 
     if (!updatedTour) {
       return res.status(404).json({ message: "❌ Tour không tồn tại!" });
@@ -72,7 +72,7 @@ module.exports.deleteTour = async (req, res, next) => {
     const deletedTour = await Tour.findByIdAndUpdate(
       tourId, 
       { isDeleted: true, deletedAt: new Date() }, 
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!deletedTour) {
@@ -110,7 +110,7 @@ module.exports.restoreTour = async (req, res, next) => {
     const restoredTour = await Tour.findByIdAndUpdate(
       tourId,
       { isDeleted: false, deletedAt: null },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!restoredTour) {
