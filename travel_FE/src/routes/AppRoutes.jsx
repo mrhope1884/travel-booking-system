@@ -42,14 +42,6 @@ const AppRoutes = () => {
 
         {/* User Protected Booking Routes */}
         <Route
-          path="/payment/:bookingId"
-          element={
-            <UserProtectedRoute>
-              <Payment />
-            </UserProtectedRoute>
-          }
-        />
-        <Route
           path="/bookings/payment/:bookingId"
           element={
             <UserProtectedRoute>
@@ -82,22 +74,15 @@ const AppRoutes = () => {
             </UserProtectedRoute>
           }
         />
-
-        {/* Điều hướng các đường dẫn bổ sung */}
-        <Route path="/my-bookings" element={<Navigate to="/bookings" replace />} />
-        <Route path="/my-bookings/:id" element={<Navigate to="/bookings" replace />} />
       </Route>
 
       {/* User Auth Pages */}
       <Route path="/login" element={<UserLogin />} />
-      <Route path="/auth/login" element={<UserLogin />} />
       <Route path="/register" element={<UserRegister />} />
-      <Route path="/auth/register" element={<UserRegister />} />
 
       {/* ================= ADMIN MANAGEMENT ROUTES ================= */}
       {/* Public Route: Admin Login */}
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/auth/admin/login" element={<AdminLogin />} />
 
       {/* Protected Admin Routes (Bắt buộc role: 'admin') */}
       <Route

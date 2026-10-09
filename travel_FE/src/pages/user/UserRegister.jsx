@@ -252,7 +252,7 @@ const UserRegister = () => {
         <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
           <p style={{ fontSize: '14px', color: '#64748b' }}>
             Đã có tài khoản?{' '}
-            <Link to={`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`} style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to={`/login?redirect=${encodeURIComponent(redirectUrl)}`} style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'none' }}>
               Đăng nhập tại đây <ArrowRight size={13} style={{ verticalAlign: 'middle' }} />
             </Link>
           </p>

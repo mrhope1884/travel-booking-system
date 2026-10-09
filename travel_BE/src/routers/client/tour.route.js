@@ -6,9 +6,9 @@ const tourController = require('../../controllers/client/tour.controller');
 router.get('/featured', tourController.getFeaturedTours);
 
 // 2. Lấy danh sách toàn bộ tour (tìm kiếm, lọc giá, phân trang)
-router.get('/all', tourController.getAllTours);
+router.get('/', tourController.getAllTours);
 
 // 3. Chi tiết 1 tour theo ID
-router.get('/detail/:id', tourController.getTourById);
+router.get('/:id', tourController.getTourById);
 
 module.exports = router;

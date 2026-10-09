@@ -20,34 +20,46 @@ export const userService = {
     return response.data;
   },
 
-  // ================= ADMIN APIS =================
-  // 4. Admin lấy danh sách tất cả người dùng (Action: /all)
+  // ================= ADMIN APIS (RESTful nguyên bản theo đúng BE) =================
+  // --- A. QUẢN LÝ KHÁCH HÀNG (User) -> /api/admin/users ---
   getUsers: async (params = {}) => {
-    const response = await api.get('/admin/users/all', { params });
+    const response = await api.get('/admin/users', { params });
     return response.data?.data || response.data || [];
   },
 
-  // 5. Admin xem chi tiết người dùng theo ID (Action: /detail/:id)
   getUserById: async (id) => {
-    const response = await api.get(`/admin/users/detail/${id}`);
+    const response = await api.get(`/admin/users/${id}`);
     return response.data?.data || response.data;
   },
 
-  // 6. Admin thêm người dùng mới (Action: /create)
   createUser: async (userData) => {
-    const response = await api.post('/admin/users/create', userData);
+    const response = await api.post('/admin/users', userData);
     return response.data;
   },
 
-  // 7. Admin sửa thông tin người dùng (Action: /update/:id)
   updateUser: async (id, userData) => {
-    const response = await api.put(`/admin/users/update/${id}`, userData);
+    const response = await api.put(`/admin/users/${id}`, userData);
     return response.data;
   },
 
-  // 8. Admin xóa người dùng (Action: /delete/:id)
   deleteUser: async (id) => {
-    const response = await api.delete(`/admin/users/delete/${id}`);
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  // --- B. QUẢN LÝ QUẢN TRỊ VIÊN (Admin) -> /api/admin/admins ---
+  getAdmins: async (params = {}) => {
+    const response = await api.get('/admin/admins', { params });
+    return response.data?.data || response.data || [];
+  },
+
+  getAdminById: async (id) => {
+    const response = await api.get(`/admin/admins/${id}`);
+    return response.data?.data || response.data;
+  },
+
+  updateAdmin: async (id, adminData) => {
+    const response = await api.put(`/admin/admins/${id}`, adminData);
     return response.data;
   },
 };

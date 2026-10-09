@@ -347,7 +347,7 @@ const BookingDetail = () => {
                   </button>
 
                   <Link
-                    to={`/payment/${booking._id}`}
+                    to={`/bookings/payment/${booking._id}`}
                     style={{
                       padding: '10px 22px',
                       borderRadius: '8px',

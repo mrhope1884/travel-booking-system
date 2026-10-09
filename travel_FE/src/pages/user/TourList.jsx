@@ -42,7 +42,7 @@ const getDestinationRegion = (title) => {
   if (upper.includes('ĐÀ NẴNG') || upper.includes('HUẾ') || upper.includes('HỘI AN') || upper.includes('QUY NHƠN') || upper.includes('NHA TRANG') || upper.includes('ĐÀ LẠT') || upper.includes('PHÚ YÊN')) {
     return 'Miền Trung';
   }
-  return 'Miền Nam & Biển Đảo';
+  return 'Miền Nam';
 };
 
 const TourList = () => {
@@ -55,7 +55,7 @@ const TourList = () => {
   const [query, setQuery] = useState(searchParams.get('query') || '');
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
-  const [selectedRegion, setSelectedRegion] = useState('ALL');
+  const [selectedRegion, setSelectedRegion] = useState(searchParams.get('region') || 'ALL');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -222,7 +222,7 @@ const TourList = () => {
               { id: 'ALL', label: 'Tất cả điểm đến' },
               { id: 'Miền Bắc', label: 'Miền Bắc' },
               { id: 'Miền Trung', label: 'Miền Trung' },
-              { id: 'Miền Nam & Biển Đảo', label: 'Miền Nam & Đảo' },
+              { id: 'Miền Nam', label: 'Miền Nam & Đảo' },
             ].map((region) => (
               <button
                 key={region.id}

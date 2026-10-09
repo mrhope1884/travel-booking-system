@@ -46,7 +46,7 @@ const Payment = () => {
   const handleSelectMethod = async (newMethod) => {
     if (newMethod === selectedMethod) return;
     setSelectedMethod(newMethod);
-    navigate(`/payment/${bookingId}?method=${newMethod}`, { replace: true });
+    navigate(`/bookings/payment/${bookingId}?method=${newMethod}`, { replace: true });
 
     try {
       setSavingMethod(true);

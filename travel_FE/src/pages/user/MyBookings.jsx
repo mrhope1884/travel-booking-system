@@ -324,7 +324,7 @@ const MyBookings = () => {
                     {/* Nút Thanh toán nếu chưa hủy và chưa thanh toán */}
                     {!isCancelled && b.paymentStatus !== 'paid' && (
                       <Link
-                        to={`/payment/${b._id}`}
+                        to={`/bookings/payment/${b._id}`}
                         style={{
                           padding: '8px 14px',
                           borderRadius: '8px',

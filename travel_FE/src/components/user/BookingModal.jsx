@@ -57,7 +57,7 @@ const BookingModal = ({ isOpen, onClose, tour, quantity, totalPrice, user, onSuc
         onSuccess(newBooking);
       } else {
         // Chuyển hướng sang trang thanh toán kèm phương thức đã chọn
-        navigate(`/payment/${newBooking._id || newBooking.id}?method=${paymentMethod}`);
+        navigate(`/bookings/payment/${newBooking._id || newBooking.id}?method=${paymentMethod}`);
       }
     } catch (err) {
       console.error('Lỗi tạo booking:', err);

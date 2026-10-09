@@ -89,11 +89,7 @@ const Contact = () => {
           gap: "8px",
         }}
       >
-        <span>
-          {backendReady
-            ? "✅ Backend đã kết nối API hòm thư thành công (GET /api/admin/contacts)."
-            : "ℹ️ Backend đang kết nối API hòm thư. Bạn có thể nhấn làm mới."}
-        </span>
+        
         <button
           onClick={fetchContacts}
           style={{

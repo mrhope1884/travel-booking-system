@@ -7,13 +7,13 @@ const authMiddleware = require('../../middlewares/auth.middleware');
 router.use(authMiddleware.verifyToken);
 
 // 1. Đặt tour mới
-router.post('/create', bookingController.createBooking);
+router.post('/', bookingController.createBooking);
 
 // 2. Khách xem danh sách đơn của mình
-router.get('/all', bookingController.getMyBookings);
+router.get('/', bookingController.getMyBookings);
 
 // 3. Khách xem chi tiết 1 đơn
-router.get('/detail/:id', bookingController.getBookingById);
+router.get('/:id', bookingController.getBookingById);
 
 // 4. Khách hủy đơn đặt tour
 router.patch('/cancel/:id', bookingController.cancelBooking);

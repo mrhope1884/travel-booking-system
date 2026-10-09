@@ -212,14 +212,14 @@ const UserLogin = () => {
         <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '10px' }}>
             Chưa có tài khoản?{' '}
-            <Link to={`/auth/register?redirect=${encodeURIComponent(redirectUrl)}`} style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to={`/register?redirect=${encodeURIComponent(redirectUrl)}`} style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'none' }}>
               Đăng ký tài khoản mới <ArrowRight size={13} style={{ verticalAlign: 'middle' }} />
             </Link>
           </p>
 
           <p style={{ fontSize: '13px', color: '#94a3b8' }}>
             Bạn là Quản trị viên?{' '}
-            <Link to="/auth/admin/login" style={{ color: '#475569', fontWeight: 600, textDecoration: 'underline' }}>
+            <Link to="/admin/login" style={{ color: '#475569', fontWeight: 600, textDecoration: 'underline' }}>
               Đăng nhập Admin
             </Link>
           </p>
